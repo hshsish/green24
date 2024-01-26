@@ -16,6 +16,8 @@ struct green24App: App {
                 ContentView()
                     .environmentObject(AuthViewModel())
                     .environmentObject(ImageManager())
+                    .environmentObject(PostManager())
+                    .environmentObject(YourViewModel())
             }
         }
     }

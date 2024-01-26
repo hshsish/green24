@@ -4,6 +4,7 @@ import SwiftUI
 struct StoryView: View {
     
     @State var goToUserView : Bool = false
+    
     var body: some View {
         ZStack{
             Image("userPhoto")
@@ -23,12 +24,12 @@ struct StoryView: View {
                     Button(action: {
                         goToUserView = true
                     }, label: {
-                        Image("userPhoto")
+                        Image(systemName: "xmark")
+//                        Image(uiImage: authModel.loadProfileImage())
                             .resizable()
                             .frame(width: 35, height: 35)
                             .clipShape(Circle())
                             .padding(5)
-
                     })
                     
                     Text("Username")

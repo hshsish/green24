@@ -3,13 +3,7 @@ import SwiftUI
 import Combine
 
 struct PostUserView: View {
-    var images: [String] = []
-    var rowCount: Int = 0
     
-    init(images: [String]) {
-        self.images = images
-        self.rowCount = self.images.count / 2
-    }
     var body: some View {
         VStack {
 //            ForEach(0..<rowCount, id: \.self) { index in
@@ -21,8 +15,8 @@ struct PostUserView: View {
         }
     }
 }
-//struct PostUserView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PostUserView()
-//    }
-//}
+struct PostUserView_Previews: PreviewProvider {
+    static var previews: some View {
+        PostUserView()
+    }
+}

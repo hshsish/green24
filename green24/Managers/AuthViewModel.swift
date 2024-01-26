@@ -17,7 +17,7 @@ class AuthViewModel: ObservableObject {
     @Published var loginTextField : String = ""
     @Published var newPassword : String = ""
     @Published var reEnterPassword : String = ""
-    @Published var showAlert: Bool = false
+    @Published var hasChanges: Bool = false
     @Published var users = [User]()
     @Published var dat = DataManager()
     @Published var name: String = ""
@@ -25,6 +25,7 @@ class AuthViewModel: ObservableObject {
     @Published var userBio: String = ""
     @Published var number: String = ""
     @Published var email: String = ""
+    @Published var nuserBio: String = ""
     @Published var photoURL: String = ""
     @Published var nextPage: Bool = false
     @Published var userProfilePicData: Data?
@@ -55,10 +56,8 @@ class AuthViewModel: ObservableObject {
             self.localuser = user
             
         }
-        print("is localuser - \(localuser)")
-        print("is email verified\(isEmailVerified)")
-        
     }
+    
     func loadImageFromDiskWith(fileName: String) -> UIImage? {
         
         let documentDirectory = FileManager.SearchPathDirectory.documentDirectory
@@ -69,12 +68,122 @@ class AuthViewModel: ObservableObject {
         if let dirPath = paths.first {
             let imageUrl = URL(fileURLWithPath: dirPath).appendingPathComponent(fileName)
             let image = UIImage(contentsOfFile: imageUrl.path)
-            print("AAAAAAA\(image)")
             return image
             
         }
         
         return nil
+    }
+    
+    func removeSavedPostFromFirebase(userId: String, postId: String) {
+        let savedPostsCollection = Firestore.firestore().collection("SavedPosts")
+        
+        let query = savedPostsCollection
+            .whereField("userId", isEqualTo: userId)
+            .whereField("postId", isEqualTo: postId)
+        
+        query.getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Ошибка при получении документов: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("Документы не найдены")
+                return
+            }
+            
+            for document in documents {
+                savedPostsCollection.document(document.documentID).delete { error in
+                    if let error = error {
+                        print("Ошибка при удалении данных: \(error.localizedDescription)")
+                    } else {
+                        print("Данные успешно удалены из Cloud Firestore")
+                    }
+                }
+            }
+        }
+    }
+    
+    func getSavedPostsFromFirebase(userId: String, completion: @escaping ([Post]) -> Void) {
+        let savedPostsCollection = Firestore.firestore().collection("SavedPosts")
+        
+        let query = savedPostsCollection
+            .whereField("userId", isEqualTo: userId)
+        
+        query.getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Ошибка при получении документов: \(error.localizedDescription)")
+                completion([])
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("Документы не найдены")
+                completion([])
+                return
+            }
+            let savedPostIds = documents.compactMap { $0["postId"] as? String }
+            
+            var savedPosts: [Post] = []
+            let dispatchGroup = DispatchGroup()
+            for postId in savedPostIds {
+                dispatchGroup.enter()
+                
+                self.getPostByPostId(postId: postId) { post in
+                    if let post = post {
+                        savedPosts.append(post)
+                    }
+                    dispatchGroup.leave()
+                }
+            }
+            dispatchGroup.notify(queue: .main) {
+                completion(savedPosts)
+            }
+        }
+    }
+    
+    func getPostByPostId(postId: String, completion: @escaping (Post?) -> Void) {
+        guard let userUID = Auth.auth().currentUser?.uid else {
+            print("Пользователь не аутентифицирован")
+            completion(nil)
+            return
+        }
+        
+        let postsCollection = Firestore.firestore().collection("Posts").document(userUID).collection("userPosts")
+        let query = postsCollection.whereField("id", isEqualTo: postId)
+        
+        query.getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Ошибка при получении документа поста: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            
+            guard let documents = snapshot?.documents, let document = documents.first else {
+                print("Документ поста не найден")
+                completion(nil)
+                return
+            }
+        }
+    }
+    
+    func savePostToFirebase(userId: String, postId: String) {
+        
+        let savedPostsCollection = Firestore.firestore().collection("SavedPosts")
+        let newPostDocument = savedPostsCollection.document()
+        let postData: [String: Any] = [
+            "postId": postId,
+            "userId": userId
+        ]
+        
+        newPostDocument.setData(postData) { error in
+            if let error = error {
+                print("Ошибка при сохранении данных: \(error.localizedDescription)")
+            } else {
+                print("Данные успешно сохранены в Cloud Firestore")
+            }
+        }
     }
     
     func saveImage(image: UIImage) -> String {
@@ -92,11 +201,10 @@ class AuthViewModel: ObservableObject {
     }
     
     func loadProfileImage() -> UIImage {
-        let defaultImage: UIImage = UIImage(named: "userPhoto")!
+        let defaultImage: UIImage = UIImage(named: "kk")!
         if (localuser?.photoURL == nil) {
             return defaultImage
         }
-
         
         guard let id = Auth.auth().currentUser?.uid else {
             
@@ -192,34 +300,6 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
-
-    //    первая
-    //    func checkEmailVerification(){
-    //        guard let user = Auth.auth().currentUser else {
-    //            return
-    //        }
-    //
-    //        user.reload { [weak self] error in
-    //            if let error = error {
-    //                print("Failed to reload user: \(error.localizedDescription)")
-    //                return
-    //            }
-    //
-    //            self?.isEmailVerified = user.isEmailVerified
-    //            self?.isEmailVerified = ((self?.localuser?.isEmailVerified) != nil)
-    //
-    //            if self?.isEmailVerified != false {
-    //                self?.savedata()
-    //                self?.showAlert = false
-    //            } else {
-    //
-    //            }
-    //
-    //
-    //            print("localuser/isEmailVerified/\(self?.localuser?.isEmailVerified)")
-    //            print("isemailverified\(self?.isEmailVerified)")
-    //        }
-    //    }
     
     func checkEmailVerification(completion: @escaping (Bool) -> Void) {
         if let user = Auth.auth().currentUser {
@@ -239,11 +319,18 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    
-    func sendEmailVerification() {
+    func sendEmailVerification(completion: @escaping (Error?) -> Void) {
         if let user = Auth.auth().currentUser {
             user.sendEmailVerification { error in
+                if let error = error {
+                    completion(error)
+                } else {
+                    completion(nil)
+                }
             }
+        } else {
+            let error = NSError(domain: "YourAppDomain", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"])
+            completion(error)
         }
     }
     
@@ -277,7 +364,6 @@ class AuthViewModel: ObservableObject {
             } catch{
                 await  setError(error)
             }
-            print("userinauthsighup\(user)")
         }
     }
     
@@ -285,13 +371,20 @@ class AuthViewModel: ObservableObject {
         Task{
             do{
                 guard let userUID = Auth.auth().currentUser?.uid else { return }
-                let user = User(id: userUID, email: email, userBio: userBio, number: number, name: name, photoURL: photoURL, isEmailVerified: isEmailVerified, isNumberVerified: isNumberVerified)
+                
+                var localUser = User(id: userUID, email: localuser?.email ?? "", userBio: localuser?.userBio ?? "", number: localuser?.number ?? "", name: self.localuser?.name ?? "", photoURL: localuser?.photoURL ?? "", isEmailVerified: localuser?.isEmailVerified ?? false, isNumberVerified: localuser?.isNumberVerified ?? false)
+                
+                var user = User(id: userUID, email: self.email, userBio: userBio, number: number, name: name, photoURL: photoURL, isEmailVerified: isEmailVerified, isNumberVerified: isNumberVerified)
                 
                 let userDictionary = user.toDictionary()
                 let _ = try Firestore.firestore().collection("Users").document(userUID).setData(userDictionary, completion: { [self] error in
                     if error == nil {
                         dat.saveUserLocally(userBio: userBio, number: number ,name: name, email: email, photoURL: photoURL, isEmailVerified: isEmailVerified, isNumberVerified: isNumberVerified)
-                        print("localuser2\(localuser)")
+                        if localUser != user {
+                            print("111\(self.hasChanges)")
+                            self.hasChanges.toggle()
+                            
+                        }
                     }
                 })
             } catch{
@@ -369,5 +462,18 @@ extension User {
             "isEmailVerified": isEmailVerified,
             "isNumberVerified": isNumberVerified
         ]
+    }
+}
+
+extension User: Equatable {
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.id == rhs.id &&
+        lhs.email == rhs.email &&
+        lhs.userBio == rhs.userBio &&
+        lhs.number == rhs.number &&
+        lhs.name == rhs.name &&
+        lhs.photoURL == rhs.photoURL &&
+        lhs.isEmailVerified == rhs.isEmailVerified &&
+        lhs.isNumberVerified == rhs.isNumberVerified
     }
 }

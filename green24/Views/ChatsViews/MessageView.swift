@@ -4,6 +4,8 @@ import SwiftUI
 struct MessageView: View {
     
     @State var goToUserView : Bool = false
+    @EnvironmentObject private var authModel: AuthViewModel
+    
     var body: some View {
         VStack{
             ZStack{
@@ -11,7 +13,7 @@ struct MessageView: View {
                     .bold()
                     .font(.body)
                 HStack(alignment: .center){
-                    NavigationLink(destination: MainView(),
+                    NavigationLink(destination: MainView(selectedTab: "user"),
                                    isActive: $goToUserView) {
                         EmptyView()
                     }.navigationBarHidden(true)
@@ -19,11 +21,12 @@ struct MessageView: View {
                         goToUserView = true
                         
                     }, label: {
-                        Image("userPhoto")
+                        Image(uiImage: authModel.loadProfileImage())
                             .resizable()
+                            .scaledToFill()
                             .frame(width: 45, height: 45)
                             .clipShape(Circle())
-                            .padding(.leading, 10)
+                            .padding(.leading, 15)
                     })
                                     Spacer()
                     
@@ -31,13 +34,14 @@ struct MessageView: View {
                         
                     }) {
                         Image(systemName: "magnifyingglass")
+                            .padding(15)
                     }
                     
                     Button(action: {
                         
                     }) {
                         Image(systemName: "square.and.pencil")
-                            .padding(.trailing, 10)
+                            .padding(.trailing, 15)
                     }
                 }
             }
@@ -45,17 +49,10 @@ struct MessageView: View {
             Divider()
             ScrollView{
                 ChatRow()
-//                ChatRow()
             }
             Spacer()
         }
         .font(.title2)
         .navigationBarHidden(true)
-    }
-}
-
-struct MessageView_Previews: PreviewProvider {
-    static var previews: some View {
-        MessageView()
     }
 }

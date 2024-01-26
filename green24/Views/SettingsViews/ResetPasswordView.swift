@@ -61,8 +61,7 @@ struct ResetPasswordView: View {
                             
                             (Text("This phone number will be used to confirm this\n action: ")
                                 .foregroundColor(.gray) +
-                             Text("+ \(firstTwoDigits) • • • \(lastTwoDigits)")
-                                .foregroundColor(.black))
+                             Text("+ \(firstTwoDigits) • • • \(lastTwoDigits)"))
                             .multilineTextAlignment(.center)
                             .padding(.top, 50)
                             Spacer()
@@ -110,8 +109,7 @@ struct ResetPasswordView: View {
               
                             (Text("This email will be used to confirm this\n action: ")
                                 .foregroundColor(.gray) +
-                             Text("\(firstTwoLetters) • • • @\(String(lastLetters))")
-                                .foregroundColor(.black))
+                             Text("\(firstTwoLetters) • • • @\(String(lastLetters))"))
                             .multilineTextAlignment(.center)
                             .padding(.top, 50)
                             Spacer()

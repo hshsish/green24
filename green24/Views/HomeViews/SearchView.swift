@@ -29,7 +29,6 @@ struct SearchView: View {
     
     func search() {
         db.collection("Users")
-        //              .whereField("name", isEqualTo: searchText)
             .whereField("name", isGreaterThanOrEqualTo: searchText)
             .getDocuments() { querySnapshot, error in
                 if let error = error {

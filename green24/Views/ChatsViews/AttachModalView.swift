@@ -5,7 +5,7 @@ import MobileCoreServices
 
 struct AttachModalView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State var selectedTab = 0 // переменная для выбора текущей вкладки в TabView
+    @State var selectedTab = 0 
     @State var showImagePicker = false
     @State var showDocumentPicker = false
     

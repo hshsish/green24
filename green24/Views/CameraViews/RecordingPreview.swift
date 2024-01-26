@@ -21,9 +21,7 @@ public struct RecordingPreview: View {
                         }
                 } else {
                     Image(uiImage: UIImage(contentsOfFile: url!.path)!)
-//                        .resizable()
                         .ignoresSafeArea()
-//                        .aspectRatio(contentMode: .fill)
                 }
             }
         }.background(Color.black)

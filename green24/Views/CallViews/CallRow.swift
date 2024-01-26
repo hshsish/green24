@@ -8,16 +8,14 @@ struct CallRow: View {
                 Button(action: {
                     
                 }, label: {
-                    
-                    Image("userPhoto")
+                    Image(systemName: "person.crop.circle")
                         .resizable()
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
+                        .frame(width: 45, height: 45)
+                        .foregroundColor(.gray)
                         .padding()
                     
                     Text("+ 1 420 864 66 39")
                         .font(.body)
-                        .foregroundColor(.white)
                 })
                 
                 Spacer()
@@ -32,9 +30,8 @@ struct CallRow: View {
                     .padding()
                     .foregroundColor(.blue)
                 
-            }  .frame(height: 50)
-                .background(Color(uiColor: .tertiarySystemFill))
-                .clipShape(Capsule())
+            } .frame(height: 45)
+            .frame(maxWidth: .infinity)
     }
 }
 

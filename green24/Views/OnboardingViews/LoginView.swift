@@ -29,7 +29,6 @@ struct LoginView: View {
 
     
     var body: some View {
-//            NavigationStack{
                 VStack {
                     VStack {
                         HStack(alignment: .top) {
@@ -60,15 +59,12 @@ struct LoginView: View {
                             TextField("Username or email", text: $authModel.loginTextField)
                                 .frame(height: 40)
                                 .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
-//                                .background(Color(uicColor: .tertiarySystemFill))
                                 .cornerRadius(5)
                                 .overlay(
                                      RoundedRectangle(cornerRadius: 5)
                                         .stroke(Color.init(uiColor: .tertiarySystemFill), lineWidth: 1)
                                 )   .padding([.trailing, .leading, .bottom])
-                                
-                                
-                            
+                                                            
                             ZStack(alignment: .trailing){
                                 Group {
                                     if isSecured {
@@ -80,7 +76,6 @@ struct LoginView: View {
                                         TextField("Password", text:  $authModel.password)
                                             .frame(height: 40)
                                             .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
-                                            
                                     }
                                 }
                                 .overlay(
@@ -96,17 +91,14 @@ struct LoginView: View {
                                         .padding(.trailing, 18)
                                         .padding(.bottom)
                                 }
-                            
                             }
                         }
                         
                         if authPicker.rawValue == "signUp" {
-                            
                             RegisterView()
                         }
                         
                         VStack{
-                            
                             if authPicker.rawValue == "login" {
                                 
                                 Button(action: {
@@ -120,7 +112,6 @@ struct LoginView: View {
                                         .font(.headline)
                                         .padding()
                                         .background(Color(uiColor: .tertiarySystemFill))
-//                                        .foregroundStyle(.black)
                                         .cornerRadius(5.0)
                                 })
                             }
@@ -131,7 +122,6 @@ struct LoginView: View {
                         }
                     }
                     .frame(height: 260.0, alignment: .top)
-//                }
             }
             .alert(authModel.errorMessage, isPresented: $authModel.showError, actions: {})
             .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
@@ -141,5 +131,6 @@ struct LoginView: View {
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView().environmentObject(AuthViewModel())
+            .environmentObject(YourViewModel())
     }
 }

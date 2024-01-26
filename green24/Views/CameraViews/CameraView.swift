@@ -95,10 +95,7 @@ struct CameraView: View {
                     
                     if camera.isTaken  {
                         Button(action: {
-                            //                            if let url = camera.previewURL {
-                            //                                action(url, camera.mediaData)
-                            //                                presentationMode.wrappedValue.dismiss()
-                            //                            }
+                
                         }) {
                             Image("userPhoto")
                                 .resizable()
@@ -160,17 +157,6 @@ struct CameraView: View {
                                     camera.startRecordinng()
                                     isRecording = true
                                 }
-                            //                        ).simultaneousGesture(
-                            //                            TapGesture(count: 1)
-                            //                                .onEnded {
-                            //                                    if camera.video {
-                            //                                        print(isRecording)
-                            //                                        camera.stopRecording()
-                            //                                        print("stop")
-                            //                                        isRecording = false
-                            //                                        print(isRecording)
-                            //                                    }
-                            //                                }
                         )
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 0.5).onEnded({ value in

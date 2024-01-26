@@ -7,6 +7,7 @@ struct MainView: View {
     @ObservedObject var authModel = AuthViewModel()
     @State var selectedTab = ""
     @State var showNewChatsView : Bool = false
+    @ObservedObject var viewModel = YourViewModel()
     
     var body: some View {
         VStack{
@@ -32,9 +33,15 @@ struct MainView: View {
                     }
                 
                 UserView()
+                    .environmentObject(YourViewModel())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .tabItem{
                         Label("Profile", systemImage: "face.smiling" )
                     }.tag("user")
+            }.onAppear {
+                let tabBarAppearance = UITabBarAppearance()
+                tabBarAppearance.configureWithDefaultBackground()
+                UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
             }
         }
     }

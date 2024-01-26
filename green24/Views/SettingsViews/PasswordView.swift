@@ -99,6 +99,6 @@ struct PasswordView: View {
 
 struct PasswordView_Previews: PreviewProvider {
     static var previews: some View {
-        PasswordView().environmentObject(AuthViewModel())
+        PasswordView().environmentObject(AuthViewModel()).environmentObject(YourViewModel())
     }
 }

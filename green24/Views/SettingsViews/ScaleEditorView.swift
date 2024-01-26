@@ -23,10 +23,10 @@ struct ScaleEditorView: View {
 //                imageManager.uploadPhoto(imageManager.photoURL, for: User(name: "", photoURL: "")) { result in
 //                    switch result {
 //                     case .success(let url):
-//                         // Обновите UI или выполните другие действия после успешной загрузки фотографии
+//                        
 //                         print("Фотография успешно загружена: \(url.absoluteString)")
 //                     case .failure(let error):
-//                         // Обработайте ошибку, если загрузка фотографии не удалась
+//
 //                         print("Ошибка при загрузке фотографии: \(error.localizedDescription)")
 //                     }
 //                }

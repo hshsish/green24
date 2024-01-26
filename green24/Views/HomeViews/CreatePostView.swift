@@ -1,11 +1,18 @@
 
 import SwiftUI
+import UIKit
 
 struct CreatePostView: View {
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var PostManager: postManager
- 
+    @State var postDescription = ""
+    @State var showPostAlert = false
+    @State private var isPhotoEditorPresented = false
+    @EnvironmentObject var postManager: PostManager
+    @EnvironmentObject var authModel: AuthViewModel
+    @State var showGallery : Bool = false
+    @State var selectedImage: UIImage?
+
     var body: some View {
         VStack{
             HStack(alignment: .center){
@@ -21,19 +28,34 @@ struct CreatePostView: View {
                 Text("NewPublication")
                     .font(.title2)
                 Spacer()
+        
+//                Button(action: {
+//
+//                }) {
+//                    Image(systemName: "")
+//                        .font(.title2)
+//                }
+//                .padding(.trailing, 15)
                 
-                Button(action: {
-
-                }) {
-                    Image(systemName: "")
-                        .font(.title2)
-                }
-                .padding(.trailing, 15)
             }.padding(.top, 50)
             
             Divider()
             
-            TextEditor(text: $PostManager.postText)
+            if let selectedImage = selectedImage {
+                Image(uiImage: selectedImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 300)
+                    .onTapGesture {
+                        isPhotoEditorPresented.toggle()
+                    }.sheet(isPresented: $isPhotoEditorPresented) {
+//                        PhotoEditorSwiftUIView {
+//                            isPhotoEditorPresented.toggle()
+//                        }
+                    }
+            }
+            
+            TextEditor(text: $postDescription)
                 .multilineTextAlignment(.leading)
                 .frame(maxHeight: .infinity)
                 .onTapGesture {
@@ -42,10 +64,14 @@ struct CreatePostView: View {
             HStack{
                 
                 Button(action: {
-                    
+                    showGallery = true
                 }) {
                     Image(systemName: "plus")
-                }.padding(.leading, 15)
+                }    .sheet(isPresented: $showGallery) {
+                    ImagePickerView(selectedImage: $selectedImage)
+                        }
+                
+                .padding(.leading, 15)
                 
                 Button(action: {
                     
@@ -63,11 +89,19 @@ struct CreatePostView: View {
             }.font(.title2)
 
                 Button(action: {
-//                    PostManager.createPost(id: "", postText: PostManager.postText)
-                    PostManager.postText = ""
-                    if PostManager.pwc == true {
-                        dismiss()
+                    if let imageURL = selectedImage {
+                        postManager.uploadPhoto(selectedImage!, description: postDescription)
+                    } else {
+                        postManager.createPost(imageURL: "", caption: postDescription) { success, errorMessage in
+                            if success {
+                                print("Пост успешно создан")
+                            } else {
+                                print("Ошибка при создании поста: \(errorMessage ?? "Неизвестная ошибка")")
+                            }
+                        }
                     }
+                
+//                    postManager.uploadPhoto(selectedImage!, description: postDescription)
                 }) {
                     Text("Share")
                         .font(.title2)
@@ -75,7 +109,12 @@ struct CreatePostView: View {
                                .frame(maxWidth: .infinity, maxHeight: 65)
                                .background(Color.blue)
             }
-        }.ignoresSafeArea()
+        } .alert("Your post was successfully published", isPresented: $postManager.showPostAlert) {
+                        Button("OK") {
+                            dismiss()
+                        }
+                    }
+        .ignoresSafeArea()
         .navigationBarBackButtonHidden(true)
     }
 }

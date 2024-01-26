@@ -46,10 +46,11 @@ struct NewPasswordView: View {
                 }) {
                     Image(systemName: self.isSecured ? "eye" : "eye.slash")
                         .accentColor(.blue)
-                        .padding(.trailing, 18)
-                        .padding(.bottom)
+                        .padding(15)
+//                        .padding(.bottom)
                 }
-            }.padding([.top, .bottom], 10)
+            }
+//            .padding([.top, .bottom], 10)
             
             ZStack(alignment: .trailing){
                 Group {
@@ -79,8 +80,8 @@ struct NewPasswordView: View {
                 }) {
                     Image(systemName: self.isSecured ? "eye" : "eye.slash")
                         .accentColor(.blue)
-                        .padding(.trailing, 18)
-                        .padding(.bottom)
+                        .padding(.trailing, 15)
+//                        .padding(.bottom)
                 }
             }
             

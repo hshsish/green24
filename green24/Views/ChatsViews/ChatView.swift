@@ -5,6 +5,7 @@ struct ChatView: View {
     @State var text : String = ""
     @State var showAttachModal = false
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject private var authModel: AuthViewModel
     let senderId: String = "000"
 
     var body: some View {
@@ -29,8 +30,9 @@ struct ChatView: View {
                     Button(action: {
                         
                     }, label: {
-                        Image("userPhoto")
+                        Image(uiImage: authModel.loadProfileImage())
                             .resizable()
+                            .scaledToFill()
                             .frame(width: 45, height: 45)
                             .clipShape(Circle())
                     }).padding(.trailing, 10)
@@ -117,9 +119,3 @@ struct ChatView: View {
         }.navigationBarBackButtonHidden(true)
     }
 }
-
-//struct ChatView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ChatView(messageManager: mes)
-//    }
-//}

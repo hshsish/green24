@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State var notView = false
     @State var backView = false
     @State var privView = false
+    @State var savedView = false
     @StateObject var authModel: AuthViewModel
     @StateObject var imageManager: ImageManager
     @Environment(\.presentationMode) var presentationMode
@@ -35,13 +36,19 @@ struct SettingsView: View {
                         Button(action: { setView = true }) {
                             Text("Account")
                         }.fullScreenCover(isPresented: $setView){
-                            AccountSettingsView().environmentObject(imageManager)
+                            AccountSettingsView()
                         }.navigationBarTitleDisplayMode(.automatic)
                         
                         Button(action: { notView = true }) {
                             Text("Notification")
                         }.fullScreenCover(isPresented: $notView){
                             NotificationSettingsView()
+                        }
+                        
+                        Button(action: { savedView = true }) {
+                            Text("Saved")
+                        }.fullScreenCover(isPresented: $savedView){
+                            SavedView()
                         }
                         
                         Button(action: { privView = true }) {

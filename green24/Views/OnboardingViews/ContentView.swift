@@ -21,6 +21,7 @@ struct ContentView: View {
     
     @EnvironmentObject private var authModel: AuthViewModel
     @EnvironmentObject private var imageManager: ImageManager
+    @EnvironmentObject private var yourViewModel: YourViewModel
     
     var body: some View {
         Group {
@@ -31,23 +32,17 @@ struct ContentView: View {
             }
         }
         .onAppear {
-         
             authModel.getLocalUser()
             authModel.listenToAuthState()
-            print("contentView/localUser/\(authModel.localuser)")
-           
-//            if authModel.localuser?.isEmailVerified != true {
-//                authModel.checkEmailVerification()
-//                print("contrntviewINemailverif\(authModel.isEmailVerified)")
-//            } else {
-//                print("contrntviewINemailverif\(authModel.isEmailVerified)")
-//            }
         }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().environmentObject(AuthViewModel()).environmentObject(ImageManager())
+        ContentView()
+            .environmentObject(AuthViewModel()).environmentObject(ImageManager()).environmentObject(YourViewModel())
+            .environmentObject(PostManager())
+            
     }
 }

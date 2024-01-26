@@ -5,7 +5,12 @@ import Contacts
  func fetchContacts(completion: @escaping (Result<[CNContact], Error>) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             let store = CNContactStore()
-            let keysToFetch = [CNContactFormatter.descriptorForRequiredKeys(for: .fullName), CNContactPhoneNumbersKey as CNKeyDescriptor]
+            let keysToFetch: [CNKeyDescriptor] = [
+                CNContactThumbnailImageDataKey as CNKeyDescriptor,
+                CNContactGivenNameKey as CNKeyDescriptor,
+                CNContactFamilyNameKey as CNKeyDescriptor,
+                CNContactPhoneNumbersKey as CNKeyDescriptor
+            ]
             let request = CNContactFetchRequest(keysToFetch: keysToFetch)
             var contacts = [CNContact]()
             do {

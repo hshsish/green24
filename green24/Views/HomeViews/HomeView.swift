@@ -4,117 +4,124 @@ import Firebase
 
 struct HomeView: View {
     
-    @EnvironmentObject var authModel : AuthViewModel
-    @State var goToSearchView: Bool = false
-    @State var go2StoryView: Bool = false
-    @State var openCameraView : Bool = false
-    @State var showGallery : Bool = false
-    @State var selectedImage: UIImage?
-    @State var createPost: Bool = false
-    @State var posts = [Post]()
-    @State var image: UIImage? = nil
-    var acco : AccountSettingsView
+    @EnvironmentObject var authModel: AuthViewModel
+    @EnvironmentObject var postManager: PostManager
+    @EnvironmentObject var viewModel: YourViewModel
+    @State private var posts = [Post]()
+    @State private var selectedImage: UIImage?
+    @State private var image: UIImage? = nil
+    @State private var goToSearchView: Bool = false
+    @State private var go2StoryView: Bool = false
+    @State private var openCameraView : Bool = false
+    @State private var createPost: Bool = false
+    let acco: AccountSettingsView
     
     var body: some View {
-        VStack{
-            VStack{
-                HStack{
+        VStack(spacing: 0){
+            VStack(spacing: 0){
+                HStack {
                     Text("system")
-                        .padding(.leading)
                         .bold()
+                        .padding(.leading, 15)
                     
                     Image(systemName: "globe")
                         .bold()
-                        .padding(.trailing)
                         .font(.body)
                         .foregroundStyle(.blue)
                     
                     Spacer()
                     
-                    NavigationLink(destination: SearchView(),
-                                   isActive: $goToSearchView) {
+                    NavigationLink(destination: SearchView(), isActive: $goToSearchView) {
                         EmptyView()
                     }
+                    
                     Button(action: {
                         goToSearchView = true
                     }) {
                         Image(systemName: "magnifyingglass")
+                            .font(.title2)
+                            .padding(15)
                     }
-                    
-                    NavigationLink(destination: CreatePostView(),
-                                   isActive: $createPost) {
-                        EmptyView()
-                    }
-                    
-                    Menu {
-                        
-                        Button(action: {
-                            openCameraView = true
-                        }) {
-                            Label("Story", systemImage: "camera")
-                        }
-                        
-                        Button(action: {
-                            createPost = true
-                        }){
-                            Label("Post", systemImage: "square.and.pencil")
-                        }
-                    } label: {
+                    Button(action: {
+                        createPost = true
+                    }) {
                         Image(systemName: "plus")
-                            .padding(.trailing, 15)
+                            .font(.title2)
+                            .padding(.trailing ,15)
                         
+                    }.fullScreenCover(isPresented: $createPost){
+                        CreatePostView()
+                            .environmentObject(authModel)
                     }
-                    //                    .sheet(isPresented: $showGallery) {
-                    //                        ImagePickerView(selectedImage: self.$selectedImage)
+                    
+                    
+                    //                    Menu {
+                    //                        Button{
+                    //                            openCameraView = true
+                    //                        }) {
+                    //                            Label("Story", systemImage: "camera")
+                    //                        }
+                    //
+                    //                        Button(action: {
+                    //                            createPost = true
+                    //                        }) {
+                    //                            Label("Post", systemImage: "square.and.pencil")
+                    //                        }
+                    //                    } label: {
+                    //                        Image(systemName: "plus")
+                    //                            .font(.title2)
+                    //                            .padding(15)
+                    //
                     //                    }
-                    .fullScreenCover(isPresented: $openCameraView) {
-                        CameraView()
-                    }
-                }
-                .padding(.top, 40)
-                .font(.title3)
-                
-                ScrollView(.horizontal, showsIndicators: false){
-                    HStack{
-                        VStack{
-                            NavigationLink(destination: StoryView(),
-                                           isActive: $go2StoryView) {
+                    //                    .fullScreenCover(isPresented: $openCameraView) {
+                    //                        CameraView()
+                    //                    }
+                }.frame(height: 35)
+            }
+            ScrollView {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        VStack {
+                            NavigationLink(destination: StoryView(), isActive: $go2StoryView) {
                                 EmptyView()
                             }
                             Button(action: {
                                 go2StoryView = true
-                            }, label: {
-                                Image(systemName: "photo")
+                            }) {
+                                Image(uiImage: authModel.loadProfileImage())
                                     .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 70, height: 70)
                                     .clipShape(Circle())
-                                    .frame(width: 80, height: 80)
-                                
-                                
-                            })
+                                    .overlay(
+                                                     Circle()
+                                                         .stroke(Color.blue, lineWidth: 2)
+                                                 )
+                            }
+                            
                             Text(authModel.name)
-                        }.padding(.leading)
+                                .font(.system(size: 15))
+                        }.padding(.leading, 5)
                     }.frame(height: 100)
                 }
-            }
-            
+
             Divider()
-            
-            ScrollView(showsIndicators: false) {
-                //                List(PostManager.post) { post in
-                //                    VStack{
-                //                        Text("lll")
-                //                        Text(post.postText)
-                //                    }
-                //                }.onAppear() {
-                //                    self.PostManager.fetchPosts()
-                //                }
-                //                PostView()
-                
-                Spacer()
-            }
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
-            .navigationBarHidden(true)
+          
+                  LazyVStack(spacing: 0) {
+                      ForEach(postManager.post) { post in
+                          ImagePostView(post: post).environmentObject(viewModel)
+                              .frame(maxWidth: .infinity)
+                      }
+                  }
+                }.refreshable {
+                    postManager.fetchUserPosts()
+                }
+                    .onAppear {
+                        postManager.fetchUserPosts()
+                    }
+        }
+        .frame(maxWidth: .infinity)
+        .navigationBarHidden(true)
     }
 }
 
